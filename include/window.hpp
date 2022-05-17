@@ -17,7 +17,12 @@ template <auto keyboard_config> class WindowKeyboardBase {
     }
 
   protected:
-    Keyboard::Keyboard<keyboard_config> keyboard; // NOLINT
+    auto set_keyboard(Keyboard::Keyboard<keyboard_config> keyboard) -> void {
+        this->keyboard = keyboard;
+    }
+
+  private:
+    Keyboard::Keyboard<keyboard_config> keyboard;
 };
 
 class EmptyBase {};
@@ -80,7 +85,7 @@ class Window
         : title{std::move(title)}, handle{handle} {
         if constexpr (std::is_same_v<decltype(keyboard_config),
                                      Keyboard::Config>) {
-            this->keyboard = Keyboard::Keyboard<keyboard_config>{handle};
+            this->set_keyboard(Keyboard::Keyboard<keyboard_config>{handle});
         }
     };
 
