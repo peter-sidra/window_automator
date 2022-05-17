@@ -1,20 +1,20 @@
 #include "keyboard_utils.hpp"
 
-namespace WindowAutomator::KeyboardUtils {
+namespace window_automator::keyboard_utils {
 
 auto is_shift_down() -> bool {
-    SHORT shiftKeyState = GetAsyncKeyState(VK_SHIFT);
-    return ((1 << (sizeof(SHORT) * 8 - 1)) & shiftKeyState) != 0;
+    SHORT shift_key_state = GetAsyncKeyState(VK_SHIFT);
+    return ((1 << (sizeof(SHORT) * 8 - 1)) & shift_key_state) != 0;
 }
 
 auto is_ctrl_down() -> bool {
-    SHORT ctrlKeyState = GetAsyncKeyState(VK_CONTROL);
-    return ((1 << (sizeof(SHORT) * 8 - 1)) & ctrlKeyState) != 0;
+    SHORT ctrl_key_state = GetAsyncKeyState(VK_CONTROL);
+    return ((1 << (sizeof(SHORT) * 8 - 1)) & ctrl_key_state) != 0;
 }
 
 auto is_alt_down() -> bool {
-    SHORT altKeyState = GetAsyncKeyState(VK_MENU);
-    return ((1 << (sizeof(SHORT) * 8 - 1)) & altKeyState) != 0;
+    SHORT alt_key_state = GetAsyncKeyState(VK_MENU);
+    return ((1 << (sizeof(SHORT) * 8 - 1)) & alt_key_state) != 0;
 }
 
 auto is_system_key_down() -> bool {
@@ -37,7 +37,7 @@ void key_up(int key_id) {
     input.ki.wScan = 0;
     input.ki.time = 0;
     input.ki.dwExtraInfo = 0;
-    input.ki.wVk = key_id;
+    input.ki.wVk = (WORD)key_id;
     input.ki.dwFlags = 2;
     SendInput(1, &input, sizeof(INPUT));
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
@@ -50,10 +50,10 @@ void key_down(int key_id) {
     input.ki.wScan = 0;
     input.ki.time = 0;
     input.ki.dwExtraInfo = 0;
-    input.ki.wVk = key_id;
+    input.ki.wVk = (WORD)key_id;
     input.ki.dwFlags = 0;
     SendInput(1, &input, sizeof(INPUT));
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
 }
 
-} // namespace WindowAutomator::KeyboardUtils
+} // namespace window_automator::keyboard_utils

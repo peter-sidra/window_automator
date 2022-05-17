@@ -6,9 +6,9 @@
 #include "window.hpp"
 
 auto main() -> int {
-    using namespace WindowAutomator;
+    using namespace window_automator;
 
-    auto window = Window<Keyboard::Config{}>::create("example1.cpp");
+    auto window = Window<keyboard::Config{}>::create("example1.cpp");
     // auto window = Window<>::create("example1.cpp");
 
     if (!window) {

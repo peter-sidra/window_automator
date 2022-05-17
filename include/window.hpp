@@ -6,34 +6,36 @@
 
 #include "keyboard.hpp"
 
-namespace WindowAutomator {
+namespace window_automator {
 
-namespace Detail {
+namespace detail {
 
 template <auto keyboard_config> class WindowKeyboardBase {
   public:
-    auto get_keyboard() -> Keyboard::Keyboard<keyboard_config> & {
+    auto get_keyboard() -> keyboard::Keyboard<keyboard_config> & {
         return keyboard;
     }
 
   protected:
-    auto set_keyboard(Keyboard::Keyboard<keyboard_config> keyboard) -> void {
+    auto set_keyboard(keyboard::Keyboard<keyboard_config> keyboard) -> void {
         this->keyboard = keyboard;
     }
 
   private:
-    Keyboard::Keyboard<keyboard_config> keyboard;
+    keyboard::Keyboard<keyboard_config> keyboard;
 };
 
-class EmptyBase {};
+template <auto T = [] {}> struct Empty {
+    constexpr Empty(auto &&.../*unused*/) {}
+};
 
-} // namespace Detail
+} // namespace detail
 
-template <auto keyboard_config = nullptr>
+template <auto keyboard_config = [] {}>
 class Window
     : public std::conditional_t<
-          std::is_same_v<decltype(keyboard_config), Keyboard::Config>,
-          Detail::WindowKeyboardBase<keyboard_config>, Detail::EmptyBase> {
+          std::is_same_v<decltype(keyboard_config), keyboard::Config>,
+          detail::WindowKeyboardBase<keyboard_config>, detail::Empty<>> {
 
   public:
     auto is_in_focus() -> bool {
@@ -84,8 +86,8 @@ class Window
     Window(std::string title, HWND handle)
         : title{std::move(title)}, handle{handle} {
         if constexpr (std::is_same_v<decltype(keyboard_config),
-                                     Keyboard::Config>) {
-            this->set_keyboard(Keyboard::Keyboard<keyboard_config>{handle});
+                                     keyboard::Config>) {
+            this->set_keyboard(keyboard::Keyboard<keyboard_config>{handle});
         }
     };
 
@@ -99,15 +101,15 @@ class Window
             std::string_view window_title;
         };
 
-        WNDENUMPROC EnumWindowsProc = [](HWND hWnd, LPARAM lParam) -> BOOL {
+        WNDENUMPROC enum_windows_proc = [](HWND hWnd, LPARAM lParam) -> BOOL {
             std::string_view window_title =
                 reinterpret_cast<EnumData *>(lParam)->window_title;
 
-            static std::vector<char> Buff(window_title.length() + 1, 0);
+            static std::vector<char> buff(window_title.length() + 1, 0);
 
-            GetWindowTextA(hWnd, Buff.data(), static_cast<int>(Buff.size()));
+            GetWindowTextA(hWnd, buff.data(), static_cast<int>(buff.size()));
 
-            if (std::string_view{Buff.data()} == window_title) {
+            if (std::string_view{buff.data()} == window_title) {
                 reinterpret_cast<EnumData *>(lParam)->hWnd = hWnd;
                 return 0;
             }
@@ -116,7 +118,7 @@ class Window
 
         EnumData data{};
         data.window_title = window_title;
-        if (EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&data)) ==
+        if (EnumWindows(enum_windows_proc, reinterpret_cast<LPARAM>(&data)) ==
             0) {
             return data.hWnd;
         }
@@ -126,4 +128,4 @@ class Window
     };
 };
 
-} // namespace WindowAutomator
+} // namespace window_automator

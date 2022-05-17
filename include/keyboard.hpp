@@ -6,7 +6,7 @@
 
 #include "keyboard_utils.hpp"
 
-namespace WindowAutomator::Keyboard {
+namespace window_automator::keyboard {
 
 struct Config {
     bool random_delay = false;
@@ -15,7 +15,7 @@ struct Config {
     bool ignore_when_sys_key_pressed = false;
 };
 
-template <Keyboard::Config config = Config{}> class Keyboard {
+template <keyboard::Config config = Config{}> class Keyboard {
   private:
     enum class Action {
         key_down,
@@ -61,19 +61,19 @@ template <Keyboard::Config config = Config{}> class Keyboard {
         };
 
         if constexpr (config.ignore_when_sys_key_pressed) {
-            if (KeyboardUtils::is_system_key_down()) {
+            if (utils::is_system_key_down()) {
                 return;
             }
         }
 
         if constexpr (action == Action::key_down) {
-            KeyboardUtils::key_down(key_id);
+            utils::key_down(key_id);
         } else if constexpr (action == Action::key_up) {
-            KeyboardUtils::key_up(key_id);
+            utils::key_up(key_id);
         } else if constexpr (action == Action::post_key_down) {
-            KeyboardUtils::post_key_down(window_handle, key_id);
+            utils::post_key_down(window_handle, key_id);
         } else if constexpr (action == Action::post_key_up) {
-            KeyboardUtils::post_key_up(window_handle, key_id);
+            utils::post_key_up(window_handle, key_id);
         }
 
         // Add random delay if enabled
@@ -83,4 +83,4 @@ template <Keyboard::Config config = Config{}> class Keyboard {
     }
 };
 
-} // namespace WindowAutomator::Keyboard
+} // namespace window_automator::keyboard
