@@ -5,24 +5,40 @@
 #include <windows.h>
 
 #include "keyboard.hpp"
+#include "mouse.hpp"
 
 namespace window_automator {
 
 namespace detail {
 
-template <auto keyboard_config> class WindowKeyboardBase {
+template <auto config> class WindowKeyboardBase {
   public:
-    auto get_keyboard() -> keyboard::Keyboard<keyboard_config> & {
+    auto get_keyboard() -> keyboard::Keyboard<config> & {
         return keyboard;
     }
 
   protected:
-    auto set_keyboard(keyboard::Keyboard<keyboard_config> keyboard) -> void {
+    void set_keyboard(keyboard::Keyboard<config> keyboard) {
         this->keyboard = keyboard;
     }
 
   private:
-    keyboard::Keyboard<keyboard_config> keyboard;
+    keyboard::Keyboard<config> keyboard;
+};
+
+template <auto config> class WindowMouseBase {
+  public:
+    auto get_mouse() -> mouse::Mouse<config> & {
+        return mouse;
+    }
+
+  protected:
+    void set_mouse(mouse::Mouse<config> mouse) {
+        this->mouse = mouse;
+    }
+
+  private:
+    mouse::Mouse<config> mouse;
 };
 
 template <auto T = [] {}> struct Empty {
@@ -31,12 +47,18 @@ template <auto T = [] {}> struct Empty {
 
 } // namespace detail
 
-template <auto keyboard_config = [] {}>
-class Window
-    : public std::conditional_t<
-          std::is_same_v<decltype(keyboard_config), keyboard::Config>,
-          detail::WindowKeyboardBase<keyboard_config>, detail::Empty<>> {
-
+template <auto keyboard_config = [] {}, auto mouse_config = [] {}>
+class Window :
+    // clang-format off
+    public
+    std::conditional_t<std::is_same_v<decltype(keyboard_config), InputConfig>,
+                       detail::WindowKeyboardBase<keyboard_config>,
+                       detail::Empty<>>,
+    public
+    std::conditional_t<std::is_same_v<decltype(mouse_config), InputConfig>,
+                       detail::WindowMouseBase<mouse_config>,
+                       detail::Empty<>> {
+    // clang-format on
   public:
     auto is_in_focus() -> bool {
         return handle == GetForegroundWindow();
@@ -72,7 +94,7 @@ class Window
     };
 
     static auto create(std::string title)
-        -> std::optional<Window<keyboard_config>> {
+        -> std::optional<Window<keyboard_config, mouse_config>> {
         auto *handle = find_window_by_title(title.c_str());
 
         if (handle == nullptr) {
@@ -85,9 +107,11 @@ class Window
   private:
     Window(std::string title, HWND handle)
         : title{std::move(title)}, handle{handle} {
-        if constexpr (std::is_same_v<decltype(keyboard_config),
-                                     keyboard::Config>) {
+        if constexpr (std::is_same_v<decltype(keyboard_config), InputConfig>) {
             this->set_keyboard(keyboard::Keyboard<keyboard_config>{handle});
+        }
+        if constexpr (std::is_same_v<decltype(mouse_config), InputConfig>) {
+            this->set_mouse(mouse::Mouse<mouse_config>{handle});
         }
     };
 

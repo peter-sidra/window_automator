@@ -4,18 +4,12 @@
 #include <random>
 #include <thread>
 
+#include "input_common.hpp"
 #include "keyboard_utils.hpp"
 
 namespace window_automator::keyboard {
 
-struct Config {
-    bool random_delay = false;
-    long long delay_min = 2;
-    long long delay_max = 10;
-    bool ignore_when_sys_key_pressed = false;
-};
-
-template <keyboard::Config config = Config{}> class Keyboard {
+template <InputConfig config = InputConfig{}> class Keyboard {
   private:
     enum class Action {
         key_down,

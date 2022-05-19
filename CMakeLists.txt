@@ -11,11 +11,14 @@ add_subdirectory(libs)
 
 set(SRCS
     src/keyboard_utils.cpp
+    src/mouse_utils.cpp
 )
 set(HEADERS
     include/window.hpp
     include/keyboard_utils.hpp
     include/keyboard.hpp
+    include/mouse_utils.hpp
+    include/mouse.hpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${SRCS} ${HEADERS})

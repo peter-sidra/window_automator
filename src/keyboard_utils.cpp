@@ -1,6 +1,6 @@
 #include "keyboard_utils.hpp"
 
-namespace window_automator::keyboard_utils {
+namespace window_automator::keyboard::utils {
 
 auto is_shift_down() -> bool {
     SHORT shift_key_state = GetAsyncKeyState(VK_SHIFT);
@@ -56,4 +56,4 @@ void key_down(int key_id) {
     // NOLINTEND(cppcoreguidelines-pro-type-union-access)
 }
 
-} // namespace window_automator::keyboard_utils
+} // namespace window_automator::keyboard::utils
