@@ -3,35 +3,34 @@
     "configurePresets": [
         {
             "name": "windows-default",
-            "generator": "Ninja",
+            "generator": "Ninja Multi-Config",
             "architecture": {
                 "value": "x64",
                 "strategy": "external"
             },
-            "binaryDir": "${sourceDir}/build/${presetName}",
+            "binaryDir": "${sourceDir}/build",
             "cacheVariables": {
-                "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+                "CMAKE_INSTALL_PREFIX": "${sourceDir}/build/install",
                 "VCPKG_TARGET_TRIPLET": "x64-windows-static-md",
                 "CMAKE_C_COMPILER": "cl",
-                "CMAKE_CXX_COMPILER": "cl"
+                "CMAKE_CXX_COMPILER": "cl",
+                "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
             },
             "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
-        },
+        }
+    ],
+    "buildPresets": [
         {
             "name": "debug",
-            "displayName": "VS 2022 - amd64 - Debug",
-            "inherits": "windows-default",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Debug"
-            }
+            "displayName": "Debug",
+            "configurePreset": "windows-default",
+            "configuration": "Debug"
         },
         {
             "name": "release",
-            "displayName": "VS 2022 - amd64 - Release",
-            "inherits": "windows-default",
-            "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
-            }
+            "displayName": "Release",
+            "configurePreset": "windows-default",
+            "configuration": "Release"
         }
     ]
 }
