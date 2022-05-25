@@ -10,14 +10,6 @@
 namespace window_automator::keyboard {
 
 template <InputConfig config = InputConfig{}> class Keyboard {
-  private:
-    enum class Action {
-        key_down,
-        key_up,
-        post_key_down,
-        post_key_up,
-    };
-
   public:
     Keyboard() : window_handle(nullptr){};
     Keyboard(HWND window_handle) : window_handle{window_handle} {};
@@ -27,22 +19,26 @@ template <InputConfig config = InputConfig{}> class Keyboard {
     };
 
     auto post_key_down(int key_id) const -> void {
-        dispatch_action<Action::post_key_down>(key_id);
+        dispatch_action(
+            [this, key_id] { utils::post_key_down(window_handle, key_id); });
     };
     auto post_key_up(int key_id) const -> void {
-        dispatch_action<Action::post_key_up>(key_id);
+        dispatch_action(
+            [this, key_id] { utils::post_key_up(window_handle, key_id); });
     };
     auto key_up(int key_id) const -> void {
-        dispatch_action<Action::key_up>(key_id);
+        dispatch_action([key_id] { utils::key_up(key_id); });
     };
     auto key_down(int key_id) const -> void {
-        dispatch_action<Action::key_down>(key_id);
+        dispatch_action([key_id] { utils::key_down(key_id); });
     };
 
   private:
     HWND window_handle;
 
-    template <Action action> void dispatch_action(int key_id) const {
+    template <typename Action>
+        requires requires(Action action) { std::invoke(action); }
+    void dispatch_action(Action action) const {
         static auto random_ms = [] {
             // Initialize the random number generator if needed
             if constexpr (config.random_delay) {
@@ -60,15 +56,7 @@ template <InputConfig config = InputConfig{}> class Keyboard {
             }
         }
 
-        if constexpr (action == Action::key_down) {
-            utils::key_down(key_id);
-        } else if constexpr (action == Action::key_up) {
-            utils::key_up(key_id);
-        } else if constexpr (action == Action::post_key_down) {
-            utils::post_key_down(window_handle, key_id);
-        } else if constexpr (action == Action::post_key_up) {
-            utils::post_key_up(window_handle, key_id);
-        }
+        std::invoke(action);
 
         // Add random delay if enabled
         if constexpr (config.random_delay) {

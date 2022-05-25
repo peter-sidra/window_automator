@@ -11,32 +11,31 @@
 namespace window_automator::mouse {
 
 template <InputConfig config = InputConfig{}> class Mouse {
-  private:
-    enum class Action {
-        click_left,
-        click_right,
-        move,
-    };
-
   public:
     Mouse() : window_handle(nullptr){};
     Mouse(HWND window_handle) : window_handle{window_handle} {};
 
     auto click_left(utils::Coordinates coordinates) -> void {
-        dispatch_action<Action::click_left>(coordinates);
+        dispatch_action([this, coordinates] {
+            utils::click_left(window_handle, coordinates);
+        });
     }
     auto click_right(utils::Coordinates coordinates) -> void {
-        dispatch_action<Action::click_right>(coordinates);
+        dispatch_action([this, coordinates] {
+            utils::click_right(window_handle, coordinates);
+        });
     }
     auto move(utils::Coordinates coordinates) -> void {
-        dispatch_action<Action::move>(coordinates);
+        dispatch_action(
+            [this, coordinates] { utils::move(window_handle, coordinates); });
     }
 
   private:
     HWND window_handle;
 
-    template <Action action>
-    auto dispatch_action(utils::Coordinates coordinates) {
+    template <typename Action>
+        requires requires(Action action) { std::invoke(action); }
+    auto dispatch_action(Action action) {
         static auto random_ms = [] {
             // Initialize the random number generator if needed
             if constexpr (config.random_delay) {
@@ -48,13 +47,7 @@ template <InputConfig config = InputConfig{}> class Mouse {
             }
         };
 
-        if constexpr (action == Action::click_left) {
-            mouse::utils::click_left(window_handle, coordinates);
-        } else if constexpr (action == Action::click_right) {
-            mouse::utils::click_right(window_handle, coordinates);
-        } else if constexpr (action == Action::move) {
-            mouse::utils::move(window_handle, coordinates);
-        }
+        std::invoke(action);
 
         if constexpr (config.random_delay) {
             std::this_thread::sleep_for(random_ms());
