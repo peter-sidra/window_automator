@@ -1,4 +1,4 @@
-Checks: "clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*,readability-*,-cppcoreguidelines-avoid-magic-numbers,readability-*,-readability-magic-numbers"
+Checks: "clang-diagnostic-*,clang-analyzer-*,cppcoreguidelines-*,modernize-*,readability-*,bugprone-*,performance-*,-cppcoreguidelines-avoid-magic-numbers,readability-*,-readability-magic-numbers"
 HeaderFilterRegex: ""
 AnalyzeTemporaryDtors: false
 CheckOptions:
