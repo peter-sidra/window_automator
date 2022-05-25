@@ -1,8 +1,8 @@
 #pragma once
 
+#include <Windows.h>
 #include <optional>
 #include <string>
-#include <windows.h>
 
 #include "keyboard.hpp"
 #include "mouse.hpp"
@@ -42,7 +42,7 @@ template <auto config> class WindowMouseBase {
 };
 
 template <auto T = [] {}> struct Empty {
-    constexpr Empty(auto &&.../*unused*/) {}
+    constexpr explicit Empty(auto &&.../*unused*/) {}
 };
 
 } // namespace detail
